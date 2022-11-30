@@ -22,7 +22,14 @@
      * remove_datas_to_db_with_id_update ($datas_to_connect, $table, $condition, $id) 
      */
 
+    $datas_to_connect = 
 
+    [
+        "servername" => "localhost", 
+        "username"   => "root", 
+        "password"   => "", 
+        "dbname"     => "<db_name>"
+    ];
 
 
     // ---------------------------------------------------------------------------------------------------
