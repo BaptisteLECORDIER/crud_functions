@@ -148,7 +148,7 @@
 
         $conn = new mysqli($servername, $username, $password, $dbname);
 
-        $result = $conn->query("SELECT id FROM `".$table."` ORDER BY id DESC LIMIT 1;");
+        $result = $conn->query("SELECT ".$id." FROM `".$table."` ORDER BY ".$id." DESC LIMIT 1;");
 
         $resultTab = [];
 
@@ -289,7 +289,7 @@
     function add_datas_to_db_with_generated_id ($datas_to_connect, $datas_without_id, $table, $id) 
 
     {
-        $datas_with_id = ["id" => (get_last_id ($datas_to_connect, $table, $id)+1)] + $datas_without_id ;
+        $datas_with_id = [$id => (get_last_id ($datas_to_connect, $table, $id)+1)] + $datas_without_id ;
 
         add_datas_to_db ($datas_to_connect, $datas_with_id, $table);
     }
