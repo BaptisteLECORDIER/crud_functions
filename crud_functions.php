@@ -1,379 +1,271 @@
 <?php
 
-    /**
-     * get_datas_from_db ($datas_to_connect, $table)
-     * 
-     * get_nb_rows_from_db ($datas_to_connect, $table)
-     * 
-     * get_last_id ($datas_to_connect, $table, $id)
-     * 
-     * send_request_to_db ($datas_to_connect, $sql) 
-     * 
-     * add_datas_to_db ($datas_to_connect, $datas, $table)
-     * 
-     * modify_datas_to_db($datas_to_connect, $datas, $table, $condition)
-     * 
-     * add_datas_to_db_with_generated_id ($datas_to_connect, $datas_without_id, $table, $id)
-     * 
-     * remove_datas_to_db ($datas_to_connect, $table, $condition) 
-     * 
-     * update_id_table ($datas_to_connect, $table, $id)
-     * 
-     * remove_datas_to_db_with_id_update ($datas_to_connect, $table, $condition, $id) 
-     */
+    class DataBase {
 
-    $datas_to_connect = 
+// ---------------------------------------------------------------------
 
-    [
-        "servername" => "localhost", 
-        "username"   => "root", 
-        "password"   => "", 
-        "dbname"     => "<db_name>"
-    ];
+        // Informations pour se connecter à la base de données
 
+        /**
+         * Nom de domaine
+         * @var string
+         */
+        protected $servername ;
 
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
+        /**
+         * Nom d'utilisateur
+         * @var string
+         */
+        protected $username ;
 
-    /**
-     * FR : Retourne toutes les données d'une table d'une base de données
-     * EN : Return every datas of a table in a database
-     * @param array 
-     * @param string
-     * @return array
-     */
-
-    function get_datas_from_db ($datas_to_connect, $table)
-
-    {
-        $servername = $datas_to_connect["servername"];
-        $username = $datas_to_connect["username"];
-        $password = $datas_to_connect["password"];
-        $dbname = $datas_to_connect["dbname"];
-
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        $result = $conn->query("SELECT * FROM `".$table."`");
-
-        $resultTab = [];
-
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                array_push($resultTab, $row) ;
-            }
-        } 
-
-        return $resultTab;
-    }
-
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
-
-
-    function get_datas_with_manual_request ($datas_to_connect, $request)
-
-    {
-        $servername = $datas_to_connect["servername"];
-        $username = $datas_to_connect["username"];
-        $password = $datas_to_connect["password"];
-        $dbname = $datas_to_connect["dbname"];
-
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        $result = $conn->query($request);
-
-        $resultTab = [];
-
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                array_push($resultTab, $row) ;
-            }
-        } 
-
-        return $resultTab;
-    }
-
-
-
-
-
-
-
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
-
-    /**
-     * FR : Retourne le nombre de colonnes d'une table d'une base de données
-     * EN : Return number of rows of a table in a database
-     * @param array 
-     * @param string
-     * @return array
-     */
-
-    function get_nb_rows_from_db ($datas_to_connect, $table) 
-
-    {
-        $servername = $datas_to_connect["servername"];
-        $username = $datas_to_connect["username"];
-        $password = $datas_to_connect["password"];
-        $dbname = $datas_to_connect["dbname"];
+        /**
+         * Mot de passe
+         * @var string
+         */
+        protected $password ;
         
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        $result = $conn->query("SELECT COUNT(*) FROM `".$table."`");
+        /**
+         * Nom de la base de données
+         * @var string
+         */
+        protected $dbname ;
 
-        return ($result->fetch_assoc())['COUNT(*)'];
-    }
+// ---------------------------------------------------------------------
 
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
+        // Methodes
 
-    /**
-     * FR : Retourne le dernier id d'une table d'une base de données
-     * EN : Return the last id of a table in a database
-     * @param array 
-     * @param string
-     * @param string
-     * @return array
-     */
+        public function read (string $table) :array {
 
-    function get_last_id ($datas_to_connect, $table, $id) 
+            $servername = $this -> servername ;
+            $username   = $this -> username   ;
+            $password   = $this -> password   ;
+            $dbname     = $this -> dbname     ;
 
-    {
-        $servername = $datas_to_connect["servername"];
-        $username = $datas_to_connect["username"];
-        $password = $datas_to_connect["password"];
-        $dbname = $datas_to_connect["dbname"];
+            $conn   = new mysqli ($servername, $username, $password, $dbname) ;
+            $result = $conn -> query ("SELECT * FROM `".$table."`")           ;
 
-        $conn = new mysqli($servername, $username, $password, $dbname);
+            $resultTab = [] ;
 
-        $result = $conn->query("SELECT ".$id." FROM `".$table."` ORDER BY ".$id." DESC LIMIT 1;");
+            if ($result -> num_rows > 0) {
 
-        $resultTab = [];
+                while($row = $result -> fetch_assoc ()) {
+                    array_push ($resultTab, $row) ;
+                }
 
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                array_push($resultTab, $row) ;
-            }
-        } 
+            } 
 
-        if ($resultTab == []) 
-        
-        {
-            return 0;
+            return $resultTab ;
         }
 
-        else 
+        public function read_manual (string $request) :array {
 
-        {
-            return $resultTab[0][$id];
+            $servername = $this -> servername ;
+            $username   = $this -> username   ;
+            $password   = $this -> password   ;
+            $dbname     = $this -> dbname     ;
+
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            $result = $conn -> query ($request);
+
+            $resultTab = [];
+
+            if ($result->num_rows > 0) {
+                while ($row = $result -> fetch_assoc ()) {
+                    array_push ($resultTab, $row) ;
+                }
+            } 
+
+            return $resultTab;
         }
-        
-    }
 
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
+        public function nb_rows (string $table) :int {
 
-    /**
-     * FR : Envoie une requette SQL à d'une base de données
-     * EN : Send SQL request to the database
-     * @param array 
-     * @param string
-     */
+            $servername = $this -> servername ;
+            $username   = $this -> username   ;
+            $password   = $this -> password   ;
+            $dbname     = $this -> dbname     ;
 
-    function send_request_to_db ($datas_to_connect, $sql) 
+            $conn = new mysqli ($servername, $username, $password, $dbname);
+            $result = $conn -> query ("SELECT COUNT(*) FROM `".$table."`");
 
-    {
-        $servername = $datas_to_connect["servername"];
-        $username = $datas_to_connect["username"];
-        $password = $datas_to_connect["password"];
-        $dbname = $datas_to_connect["dbname"];
-        
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        $conn->query($sql);
-    }
+            return ($result -> fetch_assoc ())['COUNT(*)'];
+        }
 
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
+        public function lastID (string $table, string $id) {
 
-    /**
-     * FR : Ajout de données d'une table d'une base de données
-     * EN : Add datas of a table in the database
-     * @param array 
-     * @param array 
-     * @param string
-     */
+            $servername = $this -> servername ;
+            $username   = $this -> username   ;
+            $password   = $this -> password   ;
+            $dbname     = $this -> dbname     ;
 
-    function add_datas_to_db ($datas_to_connect, $datas, $table) 
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            $result = $conn->query("SELECT `".$id."` FROM `".$table."` ORDER BY `".$id."` DESC LIMIT 1;");
+            $resultTab = [];
 
-    {
-        $servername = $datas_to_connect["servername"];
-        $username = $datas_to_connect["username"];
-        $password = $datas_to_connect["password"];
-        $dbname = $datas_to_connect["dbname"];
-
-        $sql_request_to_construct_key = "";
-        $sql_request_to_construct_data = "";
-
-        foreach($datas as $key => $data){
-            $sql_request_to_construct_key .= $key .",";
-            if (is_int($data)) {
-                $sql_request_to_construct_data .= $data.", ";
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    array_push($resultTab, $row) ;
+                }
+            } 
+            if ($resultTab == []) {
+                return 0;
             } else {
-                $sql_request_to_construct_data .= "'".$data."', ";
+                return $resultTab[0][$id];
             }
         }
-        $sql_request_to_construct_key = substr($sql_request_to_construct_key, 0, -1);
-        $sql_request_to_construct_data = substr($sql_request_to_construct_data, 0, -2);
 
-        
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        $conn->query("INSERT INTO ".$table." (".$sql_request_to_construct_key.") VALUES (".$sql_request_to_construct_data.")");
+        public function send (string $request) {
 
+            $servername = $this -> servername ;
+            $username   = $this -> username   ;
+            $password   = $this -> password   ;
+            $dbname     = $this -> dbname     ;
+       
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            $conn->query($request);
+        }
 
-    }
+        public function add (array $datas, string $table) {
 
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
+            $servername = $this -> servername ;
+            $username   = $this -> username   ;
+            $password   = $this -> password   ;
+            $dbname     = $this -> dbname     ;
 
-    /**
-     * FR : Modication de données d'une table d'une base de données
-     * EN : Modify datas of a table in the database
-     * @param array 
-     * @param array 
-     * @param string
-     * @param string
-     */
+            $sql_request_to_construct_key = "";
+            $sql_request_to_construct_data = "";
 
-    function modify_datas_to_db($datas_to_connect, $datas, $table, $condition)
+            foreach($datas as $key => $data){
+                $sql_request_to_construct_key .= $key .",";
+                if (!is_string($data)) {
+                    $sql_request_to_construct_data .= $data.", ";
+                } else {
+                    $sql_request_to_construct_data .= "'".$data."', ";
+                }
+            }
+            $sql_request_to_construct_key = substr($sql_request_to_construct_key, 0, -1);
+            $sql_request_to_construct_data = substr($sql_request_to_construct_data, 0, -2);
 
-    {
-        $servername = $datas_to_connect["servername"];
-        $username = $datas_to_connect["username"];
-        $password = $datas_to_connect["password"];
-        $dbname = $datas_to_connect["dbname"];
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            $conn->query("INSERT INTO ".$table." (".$sql_request_to_construct_key.") VALUES (".$sql_request_to_construct_data.")");
+        }
 
-        $sql_request_to_construct = "";
+        public function modify (array $datas, string $table, string $condition) {
 
-        foreach($datas as $key => $data){
-            if (is_int($data)) {
-                $sql_request_to_construct .= $key."=".$data.", ";
+            $servername = $this -> servername ;
+            $username   = $this -> username   ;
+            $password   = $this -> password   ;
+            $dbname     = $this -> dbname     ;
+
+            $sql_request_to_construct = "";
+
+            foreach($datas as $key => $data){
+                if (!is_string($data)) {
+                    $sql_request_to_construct .= $key."=".$data.", ";
+                } else {
+                    $sql_request_to_construct .= $key."='".$data."', ";
+                }
+            }
+
+            $sql_request_to_construct = substr($sql_request_to_construct, 0, -2);
+
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            $conn->query("UPDATE ".$table." SET ".$sql_request_to_construct." WHERE ".$condition);
+
+        }
+
+        public function add_genID (array $datas_without_id, string $table, string $id) {
+
+            $datas_with_id = [$id => ($this -> lastID ($table, $id) + 1)] + $datas_without_id ;
+            $this -> add ($datas_with_id, $table);
+        }
+
+        public function remove (string $table, string $condition) {
+
+            $servername = $this -> servername ;
+            $username   = $this -> username   ;
+            $password   = $this -> password   ;
+            $dbname     = $this -> dbname     ;
+
+            $conn = new mysqli($servername, $username, $password, $dbname);
+
+            $conn->query("DELETE FROM ".$table." WHERE ".$condition);
+        }
+
+        public function updateID (string $table, string $id) {
+
+            $datas_table = $this -> read ($table);
+            $i = 1;
+            foreach ($datas_table as $data_table) {
+                $data_table_modify = $data_table;
+                $data_table_modify[$id] = $i;
+
+                $condition_with_id = $id." = ".$data_table[$id];
+                $this -> modify ($data_table_modify, $table, $condition_with_id);
+
+                $i++;
+            }
+        }
+
+        public function remove_genID (string $table, string $condition, string $id) {
+
+            $this -> remove ($table, $condition);
+            $this -> updateID ($table, $id);
+
+        }
+
+        public function read_condition (string $table, string $condition) :array {
+   
+            return $this -> read_manual ("SELECT * FROM ".$table." WHERE ".$condition);
+        }
+
+        public function has_datas ($table, $datas) :bool {
+            if ($this -> read_condition ($table, $datas) == []) {
+                return false;
             } else {
-                $sql_request_to_construct .= $key."='".$data."', ";
+                return true;
             }
         }
 
-        $sql_request_to_construct = substr($sql_request_to_construct, 0, -2);
+        public function datas_id ($table, $datas, $id) {
+            if ($this -> read_condition ($table, $datas) == []) {
+                return false;
+            } else {
+                $empty_tab = [];
 
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        $conn->query("UPDATE ".$table." SET ".$sql_request_to_construct." WHERE ".$condition);
-    }
+                foreach (($this -> read_condition ($table, $datas)) as $row) {
+                    array_push($empty_tab , $row[$id]);
+                }
+                return $empty_tab;
 
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
-
-    /**
-     * FR : Ajout de données d'une table d'une base de données sans entrer d'id
-     * EN : Add datas of a table in the database without enter id
-     * @param array
-     * @param array  
-     * @param string
-     * @param string
-     */
-
-    function add_datas_to_db_with_generated_id ($datas_to_connect, $datas_without_id, $table, $id) 
-
-    {
-        $datas_with_id = [$id => (get_last_id ($datas_to_connect, $table, $id)+1)] + $datas_without_id ;
-
-        add_datas_to_db ($datas_to_connect, $datas_with_id, $table);
-    }
-
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
-
-    /**
-     * FR : Suppression de données d'une table d'une base de données
-     * EN : Delete datas of a table in the database
-     * @param array 
-     * @param string
-     * @param string
-     */
-
-    function remove_datas_to_db ($datas_to_connect, $table, $condition) 
-
-    {
-        $servername = $datas_to_connect["servername"];
-        $username = $datas_to_connect["username"];
-        $password = $datas_to_connect["password"];
-        $dbname = $datas_to_connect["dbname"];
-
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        $conn->query("DELETE FROM ".$table." WHERE ".$condition);
-    }
-
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
-
-    /**
-     * FR : Actualisation de l'id d'une table d'une base de données
-     * EN : Update id of a table in the database
-     * @param array 
-     * @param string
-     * @param string
-     */
-
-    function update_id_table ($datas_to_connect, $table, $id) 
-    
-    {
-        $datas_table = get_datas_from_db ($datas_to_connect, $table);
-        $i = 1;
-        foreach ($datas_table as $data_table) {
-            $data_table_modify = $data_table;
-            $data_table_modify[$id] = $i;
-
-            $condition_with_id = $id." = ".$data_table[$id];
-
-            modify_datas_to_db($datas_to_connect, $data_table_modify, $table, $condition_with_id);
-
-            $i++;
+            }
         }
 
-    }
+        public function construct_cond_equal ($condition) :string {
+            $sql_request_to_construct = "";
+            foreach($condition as $key => $data){
+                if (!is_string($data)) {
+                    $sql_request_to_construct .= $key."=".$data." AND ";
+                } else {
+                    $sql_request_to_construct .= $key."='".$data."' AND ";
+                }
+            }
 
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
+            $sql_request_to_construct = substr($sql_request_to_construct, 0, -5);
 
-    /**
-     * FR : Suppression de données avec atualisation de l'id d'une table d'une base de données
-     * EN : Delete datas with update of id of a table in the database
-     * @param array 
-     * @param string
-     * @param string
-     * @param string
-     */
+            return $sql_request_to_construct;
+        }
 
-    function remove_datas_to_db_with_id_update ($datas_to_connect, $table, $condition, $id) 
+        public function __construct (string $servername, string $username, string $password, string $dbname) {
 
-    {
-        remove_datas_to_db ($datas_to_connect, $table, $condition);
-        
-        update_id_table ($datas_to_connect, $table, $id);
+            $this -> servername = $servername ;
+            $this -> username   = $username   ;
+            $this -> password   = $password   ;
+            $this -> dbname     = $dbname     ;
+            
+        }
+    } ;
 
-    }
-
-    // ---------------------------------------------------------------------------------------------------
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    // ---------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------
 
 ?>
-
-
